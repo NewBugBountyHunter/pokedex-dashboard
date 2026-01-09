@@ -1,0 +1,23 @@
+body {
+  /* 0.9 reduz para 90% do tamanho original */
+  /* 0.8 reduz para 80% e assim por diante */
+  zoom: 0.9; 
+  
+  /* Para navegadores que não aceitam 'zoom' (como Firefox antigo) */
+  transform: scale(0.9);
+  transform-origin: top center;
+}
+/* Isso controla o tamanho da imagem */
+.pokemon-card img {
+  width: 100px;   /* Largura menor */
+  height: 100px;  /* Altura menor */
+  object-fit: contain; /* Garante que a foto não fique esticada ou amassada */
+  margin-bottom: 5px;
+}
+
+/* Isso garante que o card inteiro também diminua para acompanhar a imagem */
+.pokemon-card {
+  width: 130px; /* Ajuste a largura do card para ficar proporcional */
+  padding: 1px;
+  /* ... seu resto de estilo ... */
+}
