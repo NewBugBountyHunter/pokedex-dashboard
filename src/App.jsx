@@ -20,6 +20,8 @@ function App() {
   const [listaReferencia, setListaReferencia] = useState([])
   const [pokemonSelecionado, setPokemonSelecionado] = useState(null)
 
+  const carregandoRef = useRef(false);
+
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
@@ -81,8 +83,11 @@ function App() {
 
   useEffect(() => {
     async function loadPokemons() {
-      if (loading) return;
+      if (carregandoRef.current) return;
+      
+      carregandoRef.current = true;
       setLoading(true);
+
       try {
         const response = await api.get(`pokemon?limit=60&offset=${offset}`);
         const listaBasica = response.data.results;
@@ -109,37 +114,62 @@ function App() {
             pokebolaIdeal = "Quick Ball";
           }
           
-          return { ...resPokemon.data, pokebolaIdeal };
+          return { 
+            ...resPokemon.data, 
+            pokebolaIdeal,
+            descricaoPrevia: resSpecies.data.flavor_text_entries.find(e => e.language.name === 'pt-br' || e.language.name === 'pt')?.flavor_text.replace(/[\n\f]/g, ' ') || "",
+            habitatPrevia: habitat,
+            catchRatePrevia: catchRate
+          };
         });
 
         const dadosCompletos = await Promise.all(consultasDetalhes);
-        setPokemons((prev) => [...prev, ...dadosCompletos]);
+        
+        setPokemons((prev) => {
+          const idsExistentes = new Set(prev.map(p => p.id));
+          const novosPokemons = dadosCompletos.filter(p => !idsExistentes.has(p.id));
+          return [...prev, ...novosPokemons];
+        });
+
       } catch (error) {
         console.error('Erro ao carregar pokémons:', error);
       } finally {
         setLoading(false);
+        carregandoRef.current = false;
       }
     }
 
     if (busca === '') loadPokemons();
-  }, [offset, busca, loading]);
+  }, [offset, busca]);
 
   useEffect(() => {
     const handleScroll = () => {
       const scrollHeight = document.documentElement.scrollHeight;
       const currentPosition = window.innerHeight + document.documentElement.scrollTop;
-      const scrollPercentage = currentPosition / scrollHeight;
-
-      if (scrollPercentage > 0.6 && !loading && busca === '') { 
+      
+      if (currentPosition / scrollHeight > 0.8 && !carregandoRef.current && busca === '') { 
           setOffset((prev) => prev + 60);
       }
     };
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [loading, busca]);
+  }, [busca]);
 
   const abrirModal = async (pokemon, imagem) => {
+    if (pokemon.descricaoPrevia) {
+        setPokemonSelecionado({
+            nome: pokemon.name,
+            foto: imagem,
+            descricao: pokemon.descricaoPrevia,
+            habilidades: pokemon.abilities.map(a => a.ability.name.replace('-', ' ')).join(', '),
+            regiao: pokemon.habitatPrevia,
+            captura: pokemon.catchRatePrevia,
+            pokebola: pokemon.pokebolaIdeal,
+        });
+        return;
+    }
+
     try {
       const id = pokemon.id || (pokemon.url.split('/')[6]);
       const [resSpecies, resPokemon] = await Promise.all([
@@ -151,54 +181,18 @@ function App() {
         (e) => e.language.name === 'pt-br' || e.language.name === 'pt'
       );
       
-      let textoFinal = "";
-
-      if (entradasPT) {
-        textoFinal = entradasPT.flavor_text.replace(/[\n\f]/g, ' ');
-      } else {
-        const textoEN = resSpecies.data.flavor_text_entries.find((e) => e.language.name === 'en')?.flavor_text.replace(/[\n\f]/g, ' ');
-        if (textoEN) {
-          const traducao = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(textoEN)}&langpair=en|pt-BR`);
-          const dadosTraduzidos = await traducao.json();
-          textoFinal = dadosTraduzidos.responseData.translatedText;
-        }
-      }
-
-      const habilidades = resPokemon.data.abilities
-        .map(a => a.ability.name.replace('-', ' '))
-        .join(', ');
-
-      const habitat = resSpecies.data.habitat ? resSpecies.data.habitat.name : "Desconhecido";
-      const catchRate = resSpecies.data.capture_rate;
-
-      let pokebolaIdeal = "Poke ball";
-
-      if (resSpecies.data.is_legendary || resSpecies.data.is_mythical) {
-        pokebolaIdeal = "Master Ball";
-      } else if (habitat === "waters-edge" || habitat === "sea") {
-        pokebolaIdeal = "Net Ball";
-      } else if (habitat === "cave") {
-        pokebolaIdeal = "Dusk Ball";
-      } else if (catchRate < 45) {
-        pokebolaIdeal = "Ultra Ball";
-      } else if (catchRate < 120) {
-        pokebolaIdeal = "Great Ball";
-      } else if (catchRate >= 200) {
-        pokebolaIdeal = "Quick Ball" ;
-      }
+      let textoFinal = entradasPT ? entradasPT.flavor_text.replace(/[\n\f]/g, ' ') : "Descrição não disponível.";
 
       setPokemonSelecionado({
         nome: pokemon.name,
         foto: imagem,
-        descricao: textoFinal || "Descrição não disponível.",
-        habilidades: habilidades,
-        regiao: habitat,
-        captura: catchRate,
-        pokebola: pokebolaIdeal,
+        descricao: textoFinal,
+        habilidades: resPokemon.data.abilities.map(a => a.ability.name.replace('-', ' ')).join(', '),
+        regiao: resSpecies.data.habitat?.name || "Desconhecido",
+        captura: resSpecies.data.capture_rate,
+        pokebola: "Poke ball",
       });
-    } catch (error) {
-      console.error("Erro ao carregar detalhes ", error);
-    }
+    } catch (e) { console.error(e); }
   };
 
   const pokemonsExibidos = busca === '' 
@@ -278,6 +272,12 @@ function App() {
           );
         })}
       </div>
+
+      {loading && (
+        <div style={{ color: 'white', margin: '20px', fontWeight: 'bold' }}>
+          CARREGANDO...
+        </div>
+      )}
 
       {pokemonSelecionado && (
         <div className="modal-overlay" onClick={() => setPokemonSelecionado(null)}>
