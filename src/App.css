@@ -1,23 +1,380 @@
+@import url('https://fonts.cdnfonts.com/css/hermit');
+
 body {
-  /* 0.9 reduz para 90% do tamanho original */
-  /* 0.8 reduz para 80% e assim por diante */
-  zoom: 0.9; 
-  
-  /* Para navegadores que não aceitam 'zoom' (como Firefox antigo) */
-  transform: scale(0.9);
-  transform-origin: top center;
-}
-/* Isso controla o tamanho da imagem */
-.pokemon-card img {
-  width: 100px;   /* Largura menor */
-  height: 100px;  /* Altura menor */
-  object-fit: contain; /* Garante que a foto não fique esticada ou amassada */
-  margin-bottom: 5px;
+  background-color: #000000;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  font-family: 'Hermit', 'Hurmit Nerd Font', monospace;
+  overflow-x: hidden;
 }
 
-/* Isso garante que o card inteiro também diminua para acompanhar a imagem */
+.search-container h1,
+.search-input,
+.pokemon-card h3 {
+  font-family: 'Hermit', 'Hurmit Nerd Font', monospace;
+}
+
+.container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+}
+
+.search-container {
+  background: none;
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.search-container h1 {
+  font-size: 1.2rem;
+  letter-spacing: 2px;
+  margin-top: 5px;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+
+.search-input {
+  width: 100%;
+  max-width: 500px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 30px;
+  padding: 12px 20px;
+  color: white;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+}
+
+.search-input::placeholder {
+  color: #777;
+}
+
+.search-input:focus {
+  border-color: #50b3ff;
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 20px rgba(80, 179, 255, 0.2);
+}
+
+.pokemon-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: flex-start;
+  gap: 20px;
+  padding-top: 180px;
+  padding-bottom: 50px;
+  min-height: 100vh;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* ALTERAÇÃO AQUI: CARD DOS POKEMONS MAIS TRANSLÚCIDOS */
 .pokemon-card {
-  width: 130px; /* Ajuste a largura do card para ficar proporcional */
-  padding: 1px;
-  /* ... seu resto de estilo ... */
+  position: relative;
+  width: 160px;
+  height: 200px;
+  background-color: rgba(255, 255, 255, 0.08); /* Fundo bem translúcido */
+  backdrop-filter: blur(10px); /* Efeito de vidro */
+  border: 1px solid rgba(255, 255, 255, 0.1); /* Borda sutil */
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 15px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  transition: all 0.2s ease;
+  flex: 0 0 auto;
+  cursor: pointer;
+}
+
+.pokemon-card:hover {
+  transform: scale(1.05);
+  background-color: rgba(255, 255, 255, 0.15); /* Fica um pouco mais visível no hover */
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.pokemon-card img {
+  width: 110px;
+  height: 110px;
+  object-fit: contain;
+  filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.3));
+}
+
+.pokemon-card h3 {
+  margin-top: 15px;
+  font-size: 1rem;
+  color: white;
+  text-transform: capitalize;
+  font-weight: bold;
+  text-align: center;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 30px;
+  width: 90%;
+  max-width: 400px;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+  animation: scaleUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.modal-content img {
+  width: 200px;
+  height: 200px;
+  object-fit: contain;
+  margin-top: -80px;
+  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.5));
+}
+
+.modal-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.modal-info h2 {
+  color: white;
+  text-transform: capitalize;
+  margin: 10px 0;
+  font-size: 1.8rem;
+  letter-spacing: 2px;
+  font-family: 'Hermit', 'Hurmit Nerd Font', monospace;
+}
+
+.modal-description {
+  color: #e0e0e0;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 20px;
+  border-radius: 15px;
+  margin-top: 10px;
+  text-align: center;
+  line-height: 1.6;
+  max-height: 200px;
+  font-size: 0.95rem;
+  overflow-y: auto;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-family: 'Hermit', 'Hurmit Nerd Font', monospace;
+}
+
+.modal-description::-webkit-scrollbar {
+  width: 5px;
+}
+
+.modal-description::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from { opacity: 0; transform: scale(0.8) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-stats-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  margin: 15px 0;
+}
+
+.modal-stats-row span {
+  display: block;
+  color: #ffffff;
+  font-size: 0.9rem;
+  text-transform: capitalize;
+  text-align: left;
+}
+
+.modal-stats-row strong {
+  color: #ffcb05;
+  margin-right: 5px;
+}
+
+.pokeball-icon-container {
+  position: absolute !important;
+  top: 10px !important;
+  right: 10px !important;
+  width: 32px !important;
+  height: 32px !important;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  border-radius: 8px !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  border: none !important;
+  z-index: 10 !important;
+  box-shadow: none !important;
+}
+
+.pokeball-icon {
+  width: 48px !important;
+  height: 48px !important;
+  object-fit: contain !important;
+  image-rendering: auto !important;
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.3));
+}
+
+.background-video {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+  filter: blur(8px) brightness(0.5);
+}
+
+.music-player-container {
+  position: fixed;
+  top: 15px;
+  right: 10px;
+  width: 110px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  z-index: 4000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.player-main-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.play-button-wrapper {
+  width: 25px;
+  height: 25px;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.play-btn {
+  background: none;
+  border: none;
+  color: #ffcb05 !important;
+  font-size: 0.7rem !important;
+  cursor: pointer;
+  padding: 0;
+}
+
+.nav-btn,
+.mute-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 0.6rem;
+  cursor: pointer;
+  opacity: 0.8;
+  padding: 2px;
+}
+
+.volume-control {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.volume-slider {
+  position: static !important;
+  transform: none !important;
+  width: 90% !important;
+  height: 4px;
+  cursor: pointer;
+  appearance: none;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 5px;
+  outline: none;
+}
+
+.volume-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 10px;
+  height: 10px;
+  background: #ffcb05;
+  border-radius: 50%;
+  border: 1px solid white;
+}
+
+.track-title {
+  color: white;
+  font-size: 0.45rem;
+  font-weight: bold;
+  text-align: center;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.progress-fill {
+  background: #ffcb05;
+  height: 100%;
+}
+
+@media (max-width: 480px) {
+  .music-player-container {
+    width: 90px;
+    right: 5px;
+  }
 }
