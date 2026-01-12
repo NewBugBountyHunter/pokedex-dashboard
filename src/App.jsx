@@ -49,9 +49,9 @@ function App() {
   const [volume, setVolume] = useState(1);
   const audioRef = useRef(null);
 
-  const playlist = Array.from({ length: 20 }, (_, i) => ({
-    title: `Abertura ${i + 1}`,
-    src: `/musics/Abertura${i + 1}.mp3`
+  const playlist = Array.from({ length: 19 }, (_, index) => ({
+    title: `Abertura ${index + 1}`,
+    src: `/musics/Abertura${index + 1}.mp3`
   }));
 
   const togglePlay = () => {
@@ -76,8 +76,8 @@ function App() {
     if (duration) setProgress((current / duration) * 100);
   };
 
-  const handleVolumeChange = (e) => {
-    const newVolume = parseFloat(e.target.value);
+  const handleVolumeChange = (evento) => {
+    const newVolume = parseFloat(evento.target.value);
     setVolume(newVolume);
     audioRef.current.volume = newVolume;
     if (newVolume > 0) setIsMuted(false);
@@ -112,8 +112,8 @@ function App() {
         const response = await api.get(`pokemon?limit=60&offset=${offset}`);
         const listaBasica = response.data.results;
         
-        const consultasDetalhes = listaBasica.map(async (p) => {
-          const resPokemon = await api.get(p.url);
+        const consultasDetalhes = listaBasica.map(async (pokemonIndividual) => {
+          const resPokemon = await api.get(pokemonIndividual.url);
           const resSpecies = await api.get(`pokemon-species/${resPokemon.data.id}`);
           
           let pokebolaIdeal = "Poke ball";
@@ -135,8 +135,8 @@ function App() {
           }
           
           const entradas = resSpecies.data.flavor_text_entries;
-          const entradaFinal = entradas.find(e => e.language.name === 'pt-br' || e.language.name === 'pt') 
-                               || entradas.find(e => e.language.name === 'en');
+          const entradaFinal = entradas.find(entradaTexto => entradaTexto.language.name === 'pt-br' || entradaTexto.language.name === 'pt') 
+                               || entradas.find(entradaTexto => entradaTexto.language.name === 'en');
           
           return { 
             ...resPokemon.data, 
@@ -150,8 +150,8 @@ function App() {
         const dadosCompletos = await Promise.all(consultasDetalhes);
         
         setPokemons((prev) => {
-          const idsExistentes = new Set(prev.map(p => p.id));
-          const novosPokemons = dadosCompletos.filter(p => !idsExistentes.has(p.id));
+          const idsExistentes = new Set(prev.map(pokemonExistente => pokemonExistente.id));
+          const novosPokemons = dadosCompletos.filter(novoPokemon => !idsExistentes.has(novoPokemon.id));
           return [...prev, ...novosPokemons];
         });
 
@@ -186,7 +186,7 @@ function App() {
             nome: pokemon.name,
             foto: imagem,
             descricao: pokemon.descricaoPrevia,
-            habilidades: pokemon.abilities.map(a => a.ability.name.replace('-', ' ')).join(', '),
+            habilidades: pokemon.abilities.map(habilidadeItem => habilidadeItem.ability.name.replace('-', ' ')).join(', '),
             regiao: pokemon.habitatPrevia,
             captura: pokemon.catchRatePrevia,
             pokebola: pokemon.pokebolaIdeal,
@@ -202,8 +202,8 @@ function App() {
       ]);
 
       const entradas = resSpecies.data.flavor_text_entries;
-      const entradaFinal = entradas.find(e => e.language.name === 'pt-br' || e.language.name === 'pt') 
-                           || entradas.find(e => e.language.name === 'en');
+      const entradaFinal = entradas.find(entradaTexto => entradaTexto.language.name === 'pt-br' || entradaTexto.language.name === 'pt') 
+                               || entradas.find(entradaTexto => entradaTexto.language.name === 'en');
       
       let textoFinal = entradaFinal ? entradaFinal.flavor_text.replace(/[\n\f]/g, ' ') : "Descrição não disponível.";
 
@@ -211,18 +211,18 @@ function App() {
         nome: pokemon.name,
         foto: imagem,
         descricao: textoFinal,
-        habilidades: resPokemon.data.abilities.map(a => a.ability.name.replace('-', ' ')).join(', '),
+        habilidades: resPokemon.data.abilities.map(habilidadeItem => habilidadeItem.ability.name.replace('-', ' ')).join(', '),
         regiao: resSpecies.data.habitat?.name || "Desconhecido",
         captura: resSpecies.data.capture_rate,
         pokebola: pokemon.pokebolaIdeal || "Poke ball",
       });
-    } catch (e) { console.error(e); }
+    } catch (erroApi) { console.error(erroApi); }
   };
 
   const pokemonsExibidos = (busca === '' 
     ? pokemons 
-    : listaReferencia.filter(p => p.name.toLowerCase().includes(busca.toLowerCase()))
-  ).filter(p => tipoSelecionado === 'all' || (p.types && p.types.some(t => t.type.name === tipoSelecionado)));
+    : listaReferencia.filter(pokemonItem => pokemonItem.name.toLowerCase().includes(busca.toLowerCase()))
+  ).filter(pokemonFiltro => tipoSelecionado === 'all' || (pokemonFiltro.types && pokemonFiltro.types.some(tipoObjeto => tipoObjeto.type.name === tipoSelecionado)));
 
   return (
     <div className="container">
@@ -272,19 +272,19 @@ function App() {
           className="search-input"
           placeholder="Pesquisar pokémon..."
           value={busca}
-          onChange={(e) => setBusca(e.target.value)}
+          onChange={(eventoInput) => setBusca(eventoInput.target.value)}
         />
       </header>
 
       <div className="categories-grid">
-        {tipos.map(t => (
+        {tipos.map(tipoItem => (
           <button 
-            key={t.name} 
-            className={`category-card ${tipoSelecionado === t.name ? 'active' : ''}`}
-            onClick={() => setTipoSelecionado(t.name)}
+            key={tipoItem.name} 
+            className={`category-card ${tipoSelecionado === tipoItem.name ? 'active' : ''}`}
+            onClick={() => setTipoSelecionado(tipoItem.name)}
           >
-            <img src={t.icon} alt={t.label} className="category-icon" />
-            <span>{t.label}</span>
+            <img src={tipoItem.icon} alt={tipoItem.label} className="category-icon" />
+            <span>{tipoItem.label}</span>
           </button>
         ))}
       </div>
@@ -319,7 +319,7 @@ function App() {
 
       {pokemonSelecionado && (
         <div className="modal-overlay" onClick={() => setPokemonSelecionado(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content" onClick={(eventoModal) => eventoModal.stopPropagation()}>
             <button className="modal-close-btn" onClick={() => setPokemonSelecionado(null)}>×</button>
             <img src={pokemonSelecionado.foto} alt={pokemonSelecionado.nome} />
             <div className="modal-info">
