@@ -12,11 +12,32 @@ const pokeballImages = {
   "Net Ball": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/net-ball.png"
 };
 
+// AJUSTE: ADICIONADO ÍCONE DA POKEDEX PARA A CATEGORIA "TODOS"
+const tipos = [
+  { name: 'all', label: 'TODOS', icon: 'https://cdn-icons-png.flaticon.com/512/188/188970.png' },
+  { name: 'fire', label: 'FOGO', icon: 'https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/fire.svg' },
+  { name: 'water', label: 'ÁGUA', icon: 'https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/water.svg' },
+  { name: 'grass', label: 'PLANTA', icon: 'https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/grass.svg' },
+  { name: 'electric', label: 'RAIO', icon: 'https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/electric.svg' },
+  { name: 'ice', label: 'GELO', icon: 'https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/ice.svg' },
+  { name: 'fighting', label: 'LUTA', icon: 'https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/fighting.svg' },
+  { name: 'poison', label: 'VENENO', icon: 'https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/poison.svg' },
+  { name: 'ground', label: 'TERRA', icon: 'https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/ground.svg' },
+  { name: 'flying', label: 'VOAR', icon: 'https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/flying.svg' },
+  { name: 'psychic', label: 'PSÍQUICO', icon: 'https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/psychic.svg' },
+  { name: 'bug', label: 'INSETO', icon: 'https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/bug.svg' },
+  { name: 'rock', label: 'PEDRA', icon: 'https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/rock.svg' },
+  { name: 'ghost', label: 'FANTASMA', icon: 'https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/ghost.svg' },
+  { name: 'dragon', label: 'DRAGÃO', icon: 'https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/dragon.svg' },
+  { name: 'steel', label: 'AÇO', icon: 'https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/steel.svg' }
+];
+
 function App() {
   const [loading, setLoading] = useState(false)
   const [pokemons, setPokemons] = useState([])
   const [offset, setOffset] = useState(0)
   const [busca, setBusca] = useState('')
+  const [tipoSelecionado, setTipoSelecionado] = useState('all');
   const [listaReferencia, setListaReferencia] = useState([])
   const [pokemonSelecionado, setPokemonSelecionado] = useState(null)
 
@@ -114,7 +135,6 @@ function App() {
             pokebolaIdeal = "Quick Ball";
           }
           
-          // --- CORREÇÃO DA DESCRIÇÃO (LOAD) ---
           const entradas = resSpecies.data.flavor_text_entries;
           const entradaFinal = entradas.find(e => e.language.name === 'pt-br' || e.language.name === 'pt') 
                                || entradas.find(e => e.language.name === 'en');
@@ -162,7 +182,6 @@ function App() {
   }, [busca]);
 
   const abrirModal = async (pokemon, imagem) => {
-    // Tenta usar a descrição pré-carregada
     if (pokemon.descricaoPrevia && pokemon.descricaoPrevia !== "Descrição não disponível.") {
         setPokemonSelecionado({
             nome: pokemon.name,
@@ -176,7 +195,6 @@ function App() {
         return;
     }
 
-    // --- CORREÇÃO DA DESCRIÇÃO (MODAL FALLBACK) ---
     try {
       const id = pokemon.id || (pokemon.url.split('/')[6]);
       const [resSpecies, resPokemon] = await Promise.all([
@@ -202,9 +220,10 @@ function App() {
     } catch (e) { console.error(e); }
   };
 
-  const pokemonsExibidos = busca === '' 
+  const pokemonsExibidos = (busca === '' 
     ? pokemons 
-    : listaReferencia.filter(p => p.name.toLowerCase().includes(busca.toLowerCase()));
+    : listaReferencia.filter(p => p.name.toLowerCase().includes(busca.toLowerCase()))
+  ).filter(p => tipoSelecionado === 'all' || (p.types && p.types.some(t => t.type.name === tipoSelecionado)));
 
   return (
     <div className="container">
@@ -258,6 +277,19 @@ function App() {
         />
       </header>
 
+      <div className="categories-grid">
+        {tipos.map(t => (
+          <button 
+            key={t.name} 
+            className={`category-card ${tipoSelecionado === t.name ? 'active' : ''}`}
+            onClick={() => setTipoSelecionado(t.name)}
+          >
+            <img src={t.icon} alt={t.label} className="category-icon" />
+            <span>{t.label}</span>
+          </button>
+        ))}
+      </div>
+
       <div className="pokemon-list">
         {pokemonsExibidos.map((pokemon, index) => {
           const id = pokemon.id || pokemon.url.split('/')[6];
@@ -289,6 +321,7 @@ function App() {
       {pokemonSelecionado && (
         <div className="modal-overlay" onClick={() => setPokemonSelecionado(null)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close-btn" onClick={() => setPokemonSelecionado(null)}>×</button>
             <img src={pokemonSelecionado.foto} alt={pokemonSelecionado.nome} />
             <div className="modal-info">
               <h2>{pokemonSelecionado.nome}</h2>

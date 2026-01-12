@@ -69,13 +69,55 @@ body {
   box-shadow: 0 0 20px rgba(80, 179, 255, 0.2);
 }
 
+.categories-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  width: 95%;
+  max-width: 450px;
+  margin-bottom: 20px;
+}
+
+.category-card {
+  aspect-ratio: 1 / 1;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+  padding: 5px;
+}
+
+.category-icon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+.category-card span {
+  font-size: 0.5rem;
+  font-weight: bold;
+}
+
+.category-card.active {
+  background: rgba(255, 203, 5, 0.2);
+  border-color: #ffcb05;
+}
+
 .pokemon-list {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   align-content: flex-start;
   gap: 20px;
-  padding-top: 180px;
+  padding-top: 20px;
   padding-bottom: 50px;
   min-height: 100vh;
   width: 100%;
@@ -83,14 +125,13 @@ body {
   margin: 0 auto;
 }
 
-/* ALTERAÇÃO AQUI: CARD DOS POKEMONS MAIS TRANSLÚCIDOS */
 .pokemon-card {
   position: relative;
   width: 160px;
   height: 200px;
-  background-color: rgba(255, 255, 255, 0.08); /* Fundo bem translúcido */
-  backdrop-filter: blur(10px); /* Efeito de vidro */
-  border: 1px solid rgba(255, 255, 255, 0.1); /* Borda sutil */
+  background-color: rgba(255, 255, 255, 0.08); 
+  backdrop-filter: blur(10px); 
+  border: 1px solid rgba(255, 255, 255, 0.1); 
   border-radius: 18px;
   display: flex;
   flex-direction: column;
@@ -104,7 +145,7 @@ body {
 
 .pokemon-card:hover {
   transform: scale(1.05);
-  background-color: rgba(255, 255, 255, 0.15); /* Fica um pouco mais visível no hover */
+  background-color: rgba(255, 255, 255, 0.15); 
   border-color: rgba(255, 255, 255, 0.5);
 }
 
@@ -135,11 +176,12 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 2000;
+  z-index: 20000; /* Aumentado para cobrir o player se necessário */
   animation: fadeIn 0.3s ease;
 }
 
 .modal-content {
+  position: relative;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 30px;
@@ -151,6 +193,24 @@ body {
   align-items: center;
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
   animation: scaleUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  font-size: 1.5rem;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: 0.2s;
 }
 
 .modal-content img {
@@ -279,7 +339,7 @@ body {
   padding: 8px;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.2);
-  z-index: 4000;
+  z-index: 10000;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -372,9 +432,28 @@ body {
   height: 100%;
 }
 
+/* MODIFICADO: PLAYER MOBILE MAIOR (140px) */
 @media (max-width: 480px) {
   .music-player-container {
-    width: 90px;
+    width: 140px; /* Aumentado conforme pedido */
     right: 5px;
+    padding: 12px;
+  }
+  
+  .play-button-wrapper {
+    width: 32px;
+    height: 32px;
+  }
+
+  .nav-btn {
+    font-size: 0.9rem; /* Botões de navegação maiores para facilitar o toque */
+  }
+
+  .play-btn {
+    font-size: 0.9rem !important;
+  }
+
+  .track-title {
+    font-size: 0.55rem;
   }
 }
