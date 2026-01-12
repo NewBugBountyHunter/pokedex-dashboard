@@ -114,7 +114,7 @@ function App() {
             pokebolaIdeal = "Quick Ball";
           }
           
-          // LÓGICA DE DESCRIÇÃO COM FALLBACK PARA INGLÊS
+          // --- CORREÇÃO DA DESCRIÇÃO (LOAD) ---
           const entradas = resSpecies.data.flavor_text_entries;
           const entradaFinal = entradas.find(e => e.language.name === 'pt-br' || e.language.name === 'pt') 
                                || entradas.find(e => e.language.name === 'en');
@@ -162,7 +162,8 @@ function App() {
   }, [busca]);
 
   const abrirModal = async (pokemon, imagem) => {
-    if (pokemon.descricaoPrevia) {
+    // Tenta usar a descrição pré-carregada
+    if (pokemon.descricaoPrevia && pokemon.descricaoPrevia !== "Descrição não disponível.") {
         setPokemonSelecionado({
             nome: pokemon.name,
             foto: imagem,
@@ -175,6 +176,7 @@ function App() {
         return;
     }
 
+    // --- CORREÇÃO DA DESCRIÇÃO (MODAL FALLBACK) ---
     try {
       const id = pokemon.id || (pokemon.url.split('/')[6]);
       const [resSpecies, resPokemon] = await Promise.all([
@@ -195,7 +197,7 @@ function App() {
         habilidades: resPokemon.data.abilities.map(a => a.ability.name.replace('-', ' ')).join(', '),
         regiao: resSpecies.data.habitat?.name || "Desconhecido",
         captura: resSpecies.data.capture_rate,
-        pokebola: "Poke ball",
+        pokebola: pokemon.pokebolaIdeal || "Poke ball",
       });
     } catch (e) { console.error(e); }
   };
