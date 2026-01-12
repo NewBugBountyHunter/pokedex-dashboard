@@ -114,10 +114,15 @@ function App() {
             pokebolaIdeal = "Quick Ball";
           }
           
+          // LÓGICA DE DESCRIÇÃO COM FALLBACK PARA INGLÊS
+          const entradas = resSpecies.data.flavor_text_entries;
+          const entradaFinal = entradas.find(e => e.language.name === 'pt-br' || e.language.name === 'pt') 
+                               || entradas.find(e => e.language.name === 'en');
+          
           return { 
             ...resPokemon.data, 
             pokebolaIdeal,
-            descricaoPrevia: resSpecies.data.flavor_text_entries.find(e => e.language.name === 'pt-br' || e.language.name === 'pt')?.flavor_text.replace(/[\n\f]/g, ' ') || "",
+            descricaoPrevia: entradaFinal ? entradaFinal.flavor_text.replace(/[\n\f]/g, ' ') : "Descrição não disponível.",
             habitatPrevia: habitat,
             catchRatePrevia: catchRate
           };
@@ -177,11 +182,11 @@ function App() {
         api.get(`pokemon/${id}`)
       ]);
 
-      const entradasPT = resSpecies.data.flavor_text_entries.find(
-        (e) => e.language.name === 'pt-br' || e.language.name === 'pt'
-      );
+      const entradas = resSpecies.data.flavor_text_entries;
+      const entradaFinal = entradas.find(e => e.language.name === 'pt-br' || e.language.name === 'pt') 
+                           || entradas.find(e => e.language.name === 'en');
       
-      let textoFinal = entradasPT ? entradasPT.flavor_text.replace(/[\n\f]/g, ' ') : "Descrição não disponível.";
+      let textoFinal = entradaFinal ? entradaFinal.flavor_text.replace(/[\n\f]/g, ' ') : "Descrição não disponível.";
 
       setPokemonSelecionado({
         nome: pokemon.name,
