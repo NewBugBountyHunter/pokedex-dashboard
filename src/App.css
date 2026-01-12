@@ -23,11 +23,13 @@ body {
   position: relative;
   z-index: 1;
   min-height: 100vh;
+  /* AJUSTE: Empurra todo o projeto para baixo para dar espaço ao player */
+  padding-top: 110px;
 }
 
 .search-container {
   background: none;
-  padding: 40px 20px;
+  padding: 20px 20px 40px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -331,12 +333,13 @@ body {
 
 .music-player-container {
   position: fixed;
-  top: 15px;
+  /* AJUSTE: Mantém no topo sem flutuar sobre o título */
+  top: 10px;
   right: 10px;
-  width: 110px;
+  width: 140px;
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(12px);
-  padding: 8px;
+  padding: 12px;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   z-index: 10000;
@@ -354,8 +357,8 @@ body {
 }
 
 .play-button-wrapper {
-  width: 25px;
-  height: 25px;
+  width: 32px;
+  height: 32px;
   border: 1px solid rgba(255, 255, 255, 0.8);
   border-radius: 4px;
   display: flex;
@@ -368,7 +371,7 @@ body {
   background: none;
   border: none;
   color: #ffcb05 !important;
-  font-size: 0.7rem !important;
+  font-size: 0.9rem !important;
   cursor: pointer;
   padding: 0;
 }
@@ -378,7 +381,7 @@ body {
   background: none;
   border: none;
   color: white;
-  font-size: 0.6rem;
+  font-size: 0.8rem;
   cursor: pointer;
   opacity: 0.8;
   padding: 2px;
@@ -414,7 +417,7 @@ body {
 
 .track-title {
   color: white;
-  font-size: 0.45rem;
+  font-size: 0.55rem;
   font-weight: bold;
   text-align: center;
   margin: 0;
@@ -435,8 +438,9 @@ body {
 /* MODIFICADO: PLAYER MOBILE MAIOR (140px) */
 @media (max-width: 480px) {
   .music-player-container {
-    width: 140px; /* Aumentado conforme pedido */
+    width: 140px; 
     right: 5px;
+    top: 5px;
     padding: 12px;
   }
   
@@ -446,7 +450,7 @@ body {
   }
 
   .nav-btn {
-    font-size: 0.9rem; /* Botões de navegação maiores para facilitar o toque */
+    font-size: 0.9rem;
   }
 
   .play-btn {
