@@ -23,7 +23,7 @@ body {
   position: relative;
   z-index: 1;
   min-height: 100vh;
-  /* AJUSTE: Empurra todo o projeto para baixo para dar espaço ao player */
+
   padding-top: 110px;
 }
 
@@ -178,7 +178,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 20000; /* Aumentado para cobrir o player se necessário */
+  z-index: 20000; 
   animation: fadeIn 0.3s ease;
 }
 
@@ -333,7 +333,7 @@ body {
 
 .music-player-container {
   position: fixed;
-  /* AJUSTE: Mantém no topo sem flutuar sobre o título */
+
   top: 10px;
   right: 10px;
   width: 140px;
@@ -435,7 +435,6 @@ body {
   height: 100%;
 }
 
-/* MODIFICADO: PLAYER MOBILE MAIOR (140px) */
 @media (max-width: 480px) {
   .music-player-container {
     width: 140px; 

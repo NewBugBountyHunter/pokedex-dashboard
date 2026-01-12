@@ -12,7 +12,6 @@ const pokeballImages = {
   "Net Ball": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/net-ball.png"
 };
 
-// AJUSTE: ADICIONADO ÍCONE DA POKEDEX PARA A CATEGORIA "TODOS"
 const tipos = [
   { name: 'all', label: 'TODOS', icon: 'https://cdn-icons-png.flaticon.com/512/188/188970.png' },
   { name: 'fire', label: 'FOGO', icon: 'https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/fire.svg' },
